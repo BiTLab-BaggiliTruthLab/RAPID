@@ -1,4 +1,4 @@
-package xiaolu.buckman101.unh;
+
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
@@ -16,7 +16,7 @@ public class Sample {
 		
 		final RapidAndroidParser rapid = new RapidAndroidParser();
 		 rapid.setApkDir("C:/Users/XIAOLU/Documents/GitHub/RAPID/SampleApk/");
-		 //rapid.setUnzippedFileDir("C:/Users/XIAOLU/Desktop/DataSet/");
+		
 		 rapid.setQuery(new QueryBlock(){
 		 
 			public void queries() {
