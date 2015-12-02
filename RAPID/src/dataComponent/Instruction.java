@@ -111,12 +111,13 @@ public class Instruction {
 					
 					
 					//if ... (control flow opcode)then jump to .. .
-					if (this.hasRegister()&&regNmu!=-1){
+					if (this.hasRegister()&&regNmu!=-1&&ins.registerList!=null){
 						for(int reg:ins.registerList){
 							
 							if (regNmu==reg){
 								found=true;
 							}
+							
 						}
 						if(found==true){
 							

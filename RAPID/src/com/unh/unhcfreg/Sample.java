@@ -15,8 +15,8 @@ public class Sample {
 	public static void main(String args[]){
 		
 		final RapidAndroidParser rapid = new RapidAndroidParser();
-		 rapid.setApkDir("C:/Users/XIAOLU/Desktop/APKSample/");
-		 rapid.setUnzippedFileDir("C:/Users/XIAOLU/Desktop/DataSet/");
+		 rapid.setApkDir("C:/Users/XIAOLU/Documents/GitHub/RAPID/SampleApk/");
+		 //rapid.setUnzippedFileDir("C:/Users/XIAOLU/Desktop/DataSet/");
 		 rapid.setQuery(new QueryBlock(){
 		 
 			public void queries() {
@@ -30,8 +30,10 @@ public class Sample {
 				
 				ArrayList<StringElement>stringList=rapid.getStringList();
 				System.out.println("The first 20 strings of the string component:	");
-				for(int i = 0; i< 20; i ++){
-					if(i>=stringList.size()){break;}
+				for(int i = 0; i< stringList.size(); i ++){
+					if(i==20){
+						break;
+					}
 					System.out.println("	"+stringList.get(i).stringContent);
 				}
 				
@@ -39,8 +41,10 @@ public class Sample {
 				// print API list
 				ArrayList<MethodElement>apiList=rapid.getApiList();
 				System.out.println("The first 20 APIs of the method component:	");
-				for(int j = 0; j<20; j++){
-					if(j>=stringList.size()){break;}
+				for(int j = 0; j<apiList.size(); j++){
+					if(j==20){
+						break;
+					}
 					apiList.get(j).printFields();
 				}
 				
@@ -79,9 +83,12 @@ public class Sample {
 					
 					}
 					//Searching 
-					for(Entry<Long, String> entry:rapid.getExternalFilesDirectory().entrySet()){ 
+					if(rapid.getExternalFilesDirectory().entrySet()!=null){
+						for(Entry<Long, String> entry:rapid.getExternalFilesDirectory().entrySet()){ 
 				          System.out.println(entry.getKey()+"--->"+entry.getValue()); 
-					} 
+						} 
+					}
+					
 					
 					
 				}	

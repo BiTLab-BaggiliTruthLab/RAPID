@@ -688,11 +688,13 @@ public class RapidAndroidParser {
 		}
 		ArrayList<Instruction> insList=getInstructionsOfExternalFiles();
 		for(Instruction ins:insList){
+			if(ins!=null){
+				String dir=ins.staticBackTrace("STRING",0);
 			
-			String dir=ins.staticBackTrace("STRING",0);
+				long address=ins.address;
+				addressAndDir.put(address,dir);
+			}
 			
-			long address=ins.address;
-			addressAndDir.put(address,dir);
 			
 		}
 		
