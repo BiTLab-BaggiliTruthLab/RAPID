@@ -82,12 +82,7 @@ public class Sample {
 						}
 					
 					}
-					//Searching 
-					if(rapid.getExternalFilesDirectory().entrySet()!=null){
-						for(Entry<Long, String> entry:rapid.getExternalFilesDirectory().entrySet()){ 
-				          System.out.println(entry.getKey()+"--->"+entry.getValue()); 
-						} 
-					}
+					
 					
 					
 					
