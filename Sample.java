@@ -83,7 +83,7 @@ public class Sample {
 						}
 					
 					}
-					//Searching 
+					//Searching directory of external files
 					Map <Long, String> map=rapid.getExternalFilesDirectory();
 					if(map!=null){
 						for(Entry<Long, String> entry:map.entrySet()){ 
