@@ -1,5 +1,6 @@
-
+package com.unh.unhcfreg;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.unh.unhcfreg.RapidAndroidParser;
@@ -16,7 +17,7 @@ public class Sample {
 		
 		final RapidAndroidParser rapid = new RapidAndroidParser();
 		 rapid.setApkDir("C:/Users/XIAOLU/Documents/GitHub/RAPID/SampleApk/");
-		
+		 //rapid.setUnzippedFileDir("C:/Users/XIAOLU/Desktop/DataSet/");
 		 rapid.setQuery(new QueryBlock(){
 		 
 			public void queries() {
@@ -82,7 +83,13 @@ public class Sample {
 						}
 					
 					}
-					
+					//Searching 
+					Map <Long, String> map=rapid.getExternalFilesDirectory();
+					if(map!=null){
+						for(Entry<Long, String> entry:map.entrySet()){ 
+				          System.out.println(entry.getKey()+"--->"+entry.getValue()); 
+						} 
+					}
 					
 					
 					

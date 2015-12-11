@@ -156,7 +156,7 @@ public class RapidAndroidParser {
 					}
 		
 					loadIntoMemory(unzippedFile);
-					System.out.println("#	DEX file has been successfully loaded.");
+					
 					if (0==i){
 							instructionLevelQuary();
 					}else{
@@ -208,9 +208,20 @@ public class RapidAndroidParser {
 	}
 
 	private void loadIntoMemory(String unzippedFile){
-
-				this.dl = new DexLoader(unzippedFile);
-
+				try{
+				if (unzippedFile!=null){
+					this.dl = new DexLoader(unzippedFile);
+					System.out.println("#	DEX file has been successfully loaded.");
+				}else{
+					throw new FileNotFoundException("ERROR:	no DEX file is found in the APK file.");
+				}
+				
+				}catch(Exception e){
+					e.printStackTrace();
+					
+				}
+				
+				
 	}
 	/**
 	 * Unzipping a classes.dex out from a APK file
@@ -221,10 +232,11 @@ public class RapidAndroidParser {
 			ZipDecompressor zd=new ZipDecompressor();	
 			zd.setApkDir(apkFile.getAbsolutePath(),unzippedFileDir);
 			try {
+
 				unzippedFile=zd.unzipFile("classes.dex");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				System.out.println("WARNING:	no DEX file found or APK file: "+apkFile+" is invalid.");
+				System.out.println("ERROR:	no DEX file is found or APK file: "+apkFile+" is invalid.");
 				e.printStackTrace();
 			}
 			
@@ -285,7 +297,7 @@ public class RapidAndroidParser {
 				
 				return null;
 			}
-			System.out.println("There are more than one method below matching the target. Please chose one of them.");
+			System.out.println("WARNING:	There are more than one method below matching the target. Please chose one of them.");
 			for(int i=0;i<methodList.size();i++){
 				methodList.get(i).printFields();	
 				
@@ -332,7 +344,7 @@ public class RapidAndroidParser {
 				method.printFields();
 				return null;
 			}
-			System.out.println("There are more than one method below matching the target. Please chose one of them.");
+			System.out.println("WARNING:	There are more than one method below matching the target. Please chose one of them.");
 			for(int i=0;i<methodList.size();i++){
 				methodList.get(i).printFields();				
 			}
@@ -690,7 +702,6 @@ public class RapidAndroidParser {
 		for(Instruction ins:insList){
 			if(ins!=null){
 				String dir=ins.staticBackTrace("STRING",0);
-			
 				long address=ins.address;
 				addressAndDir.put(address,dir);
 			}
@@ -702,7 +713,11 @@ public class RapidAndroidParser {
 	}
 	/**
 	 * Search instructions invoking external files
-	 * @return Return TRUE 
+	 * @return Return TRUE if APIs below are invoked
+	 * java.lang.System.load(..)
+	 * java.lang.System.loadLibrary(..)
+	 * dalvik.system.DexClassLoader.DexClassLoader(..)
+	 * dalvik.system.PathClassLoader.PathClassLoader(..)
 	 * */
 	public boolean areExternalFilesLoad(){
 		if(apiFlag==false){
