@@ -1,6 +1,5 @@
-package com.unh.unhcfreg;
+package xiaolu.buckman101.unh;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.unh.unhcfreg.RapidAndroidParser;
@@ -21,6 +20,7 @@ public class Sample {
 		 rapid.setQuery(new QueryBlock(){
 		 
 			public void queries() {
+				
 				// TODO Auto-generated method stub
 				//Print general information of DEX file
 				System.out.println("This DEX file has "+rapid.getStringList().size()+" Strings,"+
@@ -58,7 +58,7 @@ public class Sample {
 				if (rapid.isMethodExist(targetMethod)){
 					
 					//Searching the invokes of the Method;
-					ArrayList<Instruction> insList=rapid.getInvokedInstruction(targetMethod);
+					ArrayList<Instruction> insList=rapid.getInsInvokeMethod(targetMethod);
 					if(insList!=null){
 						System.out.print(insList.size()+" instructions are found involking Method:");
 						targetMethod.printFields();
@@ -83,10 +83,9 @@ public class Sample {
 						}
 					
 					}
-					//Searching directory of external files
-					Map <Long, String> map=rapid.getExternalFilesDirectory();
-					if(map!=null){
-						for(Entry<Long, String> entry:map.entrySet()){ 
+					//Searching 
+					if(rapid.getExternalFilesDirs().entrySet()!=null){
+						for(Entry<Long, String> entry:rapid.getExternalFilesDirs().entrySet()){ 
 				          System.out.println(entry.getKey()+"--->"+entry.getValue()); 
 						} 
 					}

@@ -53,16 +53,17 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Indicate a certain file being the target file which can be APK or DEX file.
+	 * Indicate a SINGLE APK or DEX file expected as the target sample file.
+	 * @param apkDir Full path of the directory storing the target sample file.
 	 * */
-	public void processSingleFile(String apkDir){
+	public void setSingleApk(String apkDir){
 		this.targetFile=apkDir;
 	}
 
 	
 	/**
-	 * If it is necessary for the user to create another directory to store the 
-	 * temporary DEX file while it is being processed, this method can set the directory
+	 * If it is necessary for the user to create another directory to temporarily store the 
+	 * DEX file while it is processed, this method can help setting the directory
 	 * @param unzippedFileDir The string for the full path of the directory
 	 * */
 	public void setUnzippedFileDir(String unzippedFileDir){
@@ -70,8 +71,8 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtaining the list of APK files' objects
-	 * @return Return an array list of the APK files' object
+	 * Obtain a list of APK files detected in a specified directory.
+	 * @return Null or an array list of the APK files' 'File object'.
 	 * */
 	public ArrayList<File> getApkList(){
 		return apkList;
@@ -116,10 +117,10 @@ public class RapidAndroidParser {
 	}
 
 	/**
-	 * Call back method where RAPID can receive the APIs called by user.
-	 * User has to call this method and implement the interface of 'QueryBlock' as the parameter,
+	 * A 'call back' method where RAPID can receive the APIs.
+	 * User has to call this method. The parameter should be an implementation for interface: 'QueryBlock',
+	 * Also, function 'queries()'of the interface have to be overridden as an API container where user calls the RAPID APIs
 	 * @param queryBlock the implementation of interface 'QueryBlock',
-	 * The function 'queries()'of the interface should be override as a APIs container.
 	 * */	
 	public void setQuery(QueryBlock queryBlock) {
 		System.out.println("#	RAPID version 0.01: a forensic examnation tool for DEX file ");
@@ -244,11 +245,11 @@ public class RapidAndroidParser {
 		return unzippedFile;
 	}
 	/**
-	 * Obtaining the instructions invoking certain methods.
-	 * @param methods Target method array, instance of MethodElement.
-	 * @return instructions founded that invoke the input methods
+	 * Obtain the instructions if they invoked any one in a methods list.
+	 * @param methods Target method array.
+	 * @return Null or a list of instructions invoked the input methods.
 	 * */
-	public ArrayList<Instruction> getInvokedInstruction(MethodElement[] methods){
+	public ArrayList<Instruction> getInsInvokeMethods(MethodElement[] methods){
 		if(apiFlag==false){
 			setApiLevel(3);
 		}
@@ -256,7 +257,7 @@ public class RapidAndroidParser {
 		ArrayList<Instruction> insList=new ArrayList<Instruction>();
 		for(MethodElement method:methods){
 			
-				ArrayList<Instruction> ins=getInvokedInstruction(method);
+				ArrayList<Instruction> ins=getInsInvokeMethod(method);
 				if(ins!=null){
 
 					insList.addAll(ins);
@@ -266,17 +267,18 @@ public class RapidAndroidParser {
 		return insList;
 	}
 	/**
-	 * Obtaining the instructions invoking a certain method.
-	 * @param method Target method, instance of MethodElement.
+	 * Obtain the instructions that invoked a method.
+	 * @param method Target methodElement object
+	 * @return Null or a list of Instruction objects
 	 * */
-	public ArrayList<Instruction> getInvokedInstruction(MethodElement method){
+	public ArrayList<Instruction> getInsInvokeMethod(MethodElement method){
 		if(apiFlag==false){
 			setApiLevel(3);
 		}
 		
 		ArrayList<MethodElement> methodList=null;
 		ArrayList<Instruction> insList=new ArrayList<Instruction>();
-		methodList=searchSimilarMethod(method);
+		methodList=searchMethod(method);
 		
 		if(methodList.size()==1){
 			for(int i = 0;i<this.codeBlockComponent.codeBlockList.size();i++){
@@ -310,9 +312,9 @@ public class RapidAndroidParser {
 	}
 	
 	/**
-	 * Obtaining all the methods that have called a assigned method.
-	 * @param method An instance of class 'MethodElement'.
-	 * @return The array list of the methods that contains the instruction(s) invoking the parameter method.
+	 * Obtain the methods including a certain function call.
+	 * @param method An object of MethodElement wanted to be searched.
+	 * @return Null or an array list of methods that containing the instruction(s) that invoked the method in the parameter.
 	 * */
 	
 	public ArrayList<MethodElement> getMethodInvolker(MethodElement method) {
@@ -321,7 +323,7 @@ public class RapidAndroidParser {
 		if(apiFlag==false){
 			setApiLevel(3);
 		}
-		methodList=searchSimilarMethod(method);
+		methodList=searchMethod(method);
 		
 		if(methodList.size()==1){
 			
@@ -358,11 +360,11 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Returning true or false for the existence of a certain method in DEX file, 
-	 * which FULLY compares the attributes: 
+	 * Return true or false for the existence of a method in DEX file, 
+	 * This function FULLY compares the 'attributes' of the method: 
 	 * 'className', 'methodName', and 'parameterType[]',which are the 3 essential conditions
-	 * for affirming an independent method.
-	 * @param  method Target method object.
+	 * @param  method Target method (an methodElement object).
+	 * @return True if the method is existed in DEX file.
 	 * */
 
 	public boolean isMethodExist(MethodElement method){
@@ -399,13 +401,14 @@ public class RapidAndroidParser {
 			return false;			
 	}
 	/**
-	 * Searching similar method(s) with the parameter
-	 * Comparing the attributes: 'className', 'methodName', and 'parameterType[]' maximum.
-	 * It is not going to be check, If an attributes is NUll. 
+	 * Search method(s) in DEX file with the same fields that are not Null in the target method. 
+	 * If an unique method is expected as the result, the target method should provide no null within 
+	 * fields: 'className', 'methodName', and 'parameterType[]'.
 	 * If all attributes are NULL, the return is the whole list of methods.
-	 * @return Returning the method list with non-NULL value attributes matched. 
+	 * @param method Target method (methodElement object).
+	 * @return A list of method(s) (methodElement object).
 	 * */
-	public ArrayList<MethodElement> searchSimilarMethod(MethodElement method){
+	public ArrayList<MethodElement> searchMethod(MethodElement method){
 		if(apiFlag==false){
 			setApiLevel(2);
 		}
@@ -448,8 +451,9 @@ public class RapidAndroidParser {
 	
 	
 	/**
-	 * Return True if the assigned string can fully match a string in DEX file
-	 * @return boolean value
+	 * Return True if a string can fully match a string parsed from DEX file
+	 * @param keyword The string wanted to be searched
+	 * @return True if it exists.
 	 * */
 	public boolean isStringExist(String keyword) {
 		//setApiLevel(0);
@@ -464,8 +468,9 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtaining the StringElement object 
-	 * if the assigned string can fully match the object鈥榮 'stringContent' field銆�
+	 * Search a string in DEX file. 
+	 * @param stringContent string for searching.
+	 * @return a list of matched string (stringElements object).
 	 * */
 	public StringElement searchString(String stringContent){
 		for(int i = 0;i<this.stringComponent.stringElementList.size();i++){
@@ -478,10 +483,11 @@ public class RapidAndroidParser {
 		return null;
 	}
 	/**
-	 * Obtaining a StringElement object list if the assigned string can be part of their 'stringContent' in DEX file.
-	 * @return Array list of eligible string object(s).
+	 * Search string(s) in DEX file that contains the input string. 
+	 * @param keyword Target string.
+	 * @return An array list of eligible string(s) (stringElement object).
 	 * */
-	public ArrayList<StringElement> stringContaines(String keyword) {
+	public ArrayList<StringElement> searchStringContaines(String keyword) {
 		ArrayList<StringElement> stringList = new ArrayList<StringElement>();
 		for(int i = 0;i<this.stringComponent.stringElementList.size();i++){
 			if(this.stringComponent.stringElementList.get(i).stringContent.contains(keyword)){
@@ -493,10 +499,10 @@ public class RapidAndroidParser {
 				
 	}
 	/**
-	 * Obtaining the whole list of methods in a DEX file,
-	 * which includes methods having a definition in DEX file and 
-	 * methods only invoked in DEX file, which is also considered as APIs in RAPID
-	 * @return the array list of 'MethodElement' instances
+	 * Obtain a list of method objects parsed out of a DEX file.
+	 * @return Null or an array list of 'MethodElement' objects.
+	 * The list includes methods with a definition and a code block and 
+	 * methods without those, which is also considered as an API in RAPID.
 	 * */
 	public ArrayList<MethodElement> getMethodList() {
 		if(apiFlag==false){
@@ -506,10 +512,10 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtaining the while list of strings in a DEX file
+	 * Obtaining the strings parsed out of a DEX file
+	 * @return Null or an array list of 'StringElement' objects.
 	 * 'String' objects here represent all strings that exist in the application, e.g., 
 	 *  values in string variables, method or class names, function return values etc.
-	 * @return the array list of 'StringElement' instances
 	 * */
 	public  ArrayList<StringElement> getStringList(){
 		
@@ -517,9 +523,9 @@ public class RapidAndroidParser {
 	
 	}
 	/**
-	 * Obtaining the list of all utilized APIs in a DEX file
-	 * Term 'API' in RAPID is represented by all the methods utilized in a DEX file without definition and code block.
-	 * @return the array list containing the 'MethodElement' instances of the eligible methods
+	 * Obtain a list of all utilized APIs in a DEX file.
+	 * Term 'API' in RAPID represents all the methods utilized in a DEX file without a code block.
+	 * @return Null or the array list where contains the 'MethodElement' instances of the eligible methods.
 	 * */
 	public ArrayList<MethodElement> getApiList(){
 		
@@ -540,9 +546,11 @@ public class RapidAndroidParser {
 		return apiList;
 	}
 	/**
-	 * Searching certain instructions by matching its opcode and the operand.
-	 * The return value can be NULL when there is no matching instructions.
-	 * @return The eligible instructions
+	 * Search an instructions by matching the opcode and the operand.
+	 * @param opcode the string type of opcode that one instruction must has. 
+	 * @param operand the number of operand, sometimes referring to string id, 
+	 * method id or others depending on the type of operand.
+	 * @return Null or the eligible list of instructions (Instruction objects).
 	 * */
 	public ArrayList<Instruction> searchInstruction(String opcode,long operand){
 		if(apiFlag==false){
@@ -566,10 +574,11 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Searching certain instructions by only checking its opcode
-	 * The return value can be NULL when there is no matching instructions.
+	 * Search an instructions with same opcode
+	 * @param opcode the string type of opcode
+	 * @return The Null or the list of matched instructions (Instruction objects).
 	 * */
-	public ArrayList<Instruction> searchInstruction(String opcode){
+	public ArrayList<Instruction> searchInsWithOpc(String opcode){
 		if(apiFlag==false){
 			setApiLevel(3);
 		}
@@ -588,11 +597,12 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtaining instructions through searching a Instruction list.
-	 * Fields 'opcode' and 'operand' are checked maximum if the value of them is not NULL.
-	 * The return value can be NULL when there is no matching instructions.
+	 * Search instructions of a DEX file in case they can match any one in an instruction list.
+	 * Fields 'opcode' and 'operand' are checked maximum if the value of these two fields are not NULL.
+	 * @param targetIns Target instruction list.
+	 * @return NULL when there is no matching instructions or an instruction list (Instruction objects).
 	 * */
-	public ArrayList<Instruction> searchInstructions(Instruction[] targetIns){
+	public ArrayList<Instruction> searchInstruction(Instruction[] targetIns){
 		if(apiFlag==false){
 			setApiLevel(3);
 		}
@@ -619,7 +629,8 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtain the list of classes in DEX file
+	 * Obtain a list of class names in DEX file.
+	 * @return Null or an array list of class names.
 	 * */
 	public ArrayList<String> getClassList(){		
 		if(apiFlag==false){
@@ -637,7 +648,8 @@ public class RapidAndroidParser {
 		
 	}
 	/**
-	 * Obtain the code block list
+	 * Obtain a list of code blocks parsed out of DEX file.
+	 * @return Null or an array list of CodeBlock objects.
 	 * */
 	public 	ArrayList<CodeBlock> getCodeBlockList(){
 		if(apiFlag==false){
@@ -646,24 +658,24 @@ public class RapidAndroidParser {
 		return this.codeBlockComponent.codeBlockList;
 	}
 	/**
-	 * Obtain the codeBlock of a method with method Id
+	 * Obtain the codeBlock of a method with certain method Id.
+	 * @return Null or a codeBlock element.
 	 * */
-	public 	CodeBlock getCodeBlock(int methodId){
+	public 	CodeBlock getCodeBlockById(int methodId){
 		if(apiFlag==false){
 			setApiLevel(2);			
 		}
 		return this.methodComponent.methodElementList.get(methodId).codeBlock;
 	}
 	/**
-	 * Search instructions invoking external files (JAR, DEX or SO).
-	 * Back trace the the path of the external files If it exist in DEX file statically
-	 * @return return the instruction(s) where the APIs below is invoked in DEX file.
+	 * Obtain the instructions that invoked external files (JAR, DEX or SO).
+	 * @return Null or an instruction(s) list that invoked the APIs below in a DEX file.
 	 * java.lang.System.load(..)
 	 * java.lang.System.loadLibrary(..)
 	 * dalvik.system.DexClassLoader.DexClassLoader(..)
 	 * dalvik.system.PathClassLoader.PathClassLoader(..)
 	 * */
-	public ArrayList<Instruction> getInstructionsOfExternalFiles(){
+	public ArrayList<Instruction> getInsLoadExternalFiles(){
 		if(apiFlag==false){
 			setApiLevel(3);			
 		}
@@ -681,7 +693,7 @@ public class RapidAndroidParser {
 		
 		ins[4]=new MethodElement ("dalvik.system.PathClassLoader","<init>",null,new String[]{"java.lang.String","java.lang.String","java.lang.ClassLoader"});
 		
-			insList=this.getInvokedInstruction(ins);
+			insList=this.getInsInvokeMethods(ins);
 			
 			return insList;
 		
@@ -689,16 +701,16 @@ public class RapidAndroidParser {
 	/**
 	 * Obtain pairs of values
 	 * 1. The address of the instructions for loading external files / libraries
-	 * 2. The static value found for the directory where loads the files while DEX file running.	
-	 * @return Map <Long,String> Long: static value found;	String: address		
+	 * 2. The back-traced static value referring to the directory saving the external files.	
+	 * @return Map <Long,String> Long: static value;	String: address	of the instruction.	
 	 * */
-	public Map <Long,String> getExternalFilesDirectory(){
+	public Map <Long,String> getExternalFilesDirs(){
 		Map <Long,String>  addressAndDir=new HashMap <Long,String> ();
 		
 		if(apiFlag==false){
 			setApiLevel(3);			
 		}
-		ArrayList<Instruction> insList=getInstructionsOfExternalFiles();
+		ArrayList<Instruction> insList=getInsLoadExternalFiles();
 		for(Instruction ins:insList){
 			if(ins!=null){
 				String dir=ins.staticBackTrace("STRING",0);
@@ -712,21 +724,132 @@ public class RapidAndroidParser {
 		return addressAndDir;
 	}
 	/**
-	 * Search instructions invoking external files
-	 * @return Return TRUE if APIs below are invoked
+	 * Return true if any instruction called external files.
+	 * @return Return TRUE if APIs below are invoked.
 	 * java.lang.System.load(..)
 	 * java.lang.System.loadLibrary(..)
 	 * dalvik.system.DexClassLoader.DexClassLoader(..)
 	 * dalvik.system.PathClassLoader.PathClassLoader(..)
 	 * */
-	public boolean areExternalFilesLoad(){
+	public boolean areExternalFilesloaded(){
 		if(apiFlag==false){
 			setApiLevel(3);			
 		}		
-			if(getInstructionsOfExternalFiles()!=null){
+			if(getInsLoadExternalFiles()!=null){
 				return true;
 			}else
 			
 			return false;
 	}
+	/**
+	 * Return true if an certain API is exist
+	 * @param api An MethodElement object
+	 * @return True if the API is exist
+	 **/
+	public boolean isApiExist(MethodElement api){
+		
+		if(apiFlag==false){
+			setApiLevel(2);
+		}
+
+		ArrayList<MethodElement> apiList = getApiList();
+		if(apiList!=null){
+			for(MethodElement me:apiList){
+				if(api.className!=null){
+					if(api.className != api.methodName)
+						return false;
+				}
+				
+				if(api.methodName != me.methodName)
+						return false;
+				
+				if(api.parameterType!=null){
+					if(api.parameterType == me.parameterType)
+						return false;
+				}
+				if(api.returnValueType!=null){
+					if(api.returnValueType == api.returnValueType)
+						return false;
+				}
+				return true;	
+			}
+		}
+		return false;
+		
+		
+	}
+	/**
+	 * Return true if a method is invoked in the target DEX file.
+	 * @param targetMethod Target method (MethodElement object).
+	 * @return True if the target method is invoked.
+	 * */
+	public boolean isMethodInvoked(MethodElement targetMethod){
+		
+		if (null!=getInsInvokeMethod(targetMethod))
+			return true;
+		else 
+			return false;
+		
+	}
+	/**
+	 * Search instructions where a certain string is assigned
+	 * @param stringContent target string
+	 * @return An array list of instructions (Instruction objects) with the string.
+	 * */
+	public 	ArrayList<Instruction> searchInsWithString(String stringContent){
+		
+		if(apiFlag==false){
+			setApiLevel(3);
+		}
+		StringElement se = this.searchString(stringContent);
+		if (se==null){
+			return null;
+		}else{
+			ArrayList<Instruction> insList = new ArrayList<Instruction>();
+				for(int i = 0;i<this.codeBlockComponent.codeBlockList.size();i++){
+					for(int j = 0;j<this.codeBlockComponent.codeBlockList.get(i).instructionList.size();j++){
+						Instruction ins = this.codeBlockComponent.codeBlockList.get(i).instructionList.get(j);
+					
+							if(ins.opcode.equals("const-string")&&ins.opcode.equals("const-string/jumbo")){
+								if(ins.getOperand()==se.stringId){
+									insList.add(ins);	
+								}
+													
+							}						
+					}
+				}
+				return insList;
+			
+			}
+		}
+	/**
+	 * Search instructions by a stringElement. An overloaded method of function: searchInsWithString(String))
+	 * @param string Target stringElement for searching
+	 * @return Null or an array list of instructions related to the target string
+	 * */
+	
+	public 	ArrayList<Instruction> searchInsWithString(StringElement string){
+		
+		if(apiFlag==false){
+			setApiLevel(3);
+		}
+
+			ArrayList<Instruction> insList = new ArrayList<Instruction>();
+				for(int i = 0;i<this.codeBlockComponent.codeBlockList.size();i++){
+					for(int j = 0;j<this.codeBlockComponent.codeBlockList.get(i).instructionList.size();j++){
+						Instruction ins = this.codeBlockComponent.codeBlockList.get(i).instructionList.get(j);
+					
+							if(ins.opcode.equals("const-string")&&ins.opcode.equals("const-string/jumbo")){
+								if(ins.getOperand()==string.stringId){
+									insList.add(ins);	
+								}
+													
+							}						
+					}
+				}
+				return insList;
+			
+	}
+		
+		
 }
