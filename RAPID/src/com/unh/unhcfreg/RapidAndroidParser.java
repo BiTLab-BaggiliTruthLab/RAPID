@@ -367,7 +367,7 @@ public class RapidAndroidParser {
 	 * @return True if the method is existed in DEX file.
 	 * */
 
-	public boolean isMethodExist(MethodElement method){
+	public boolean doseMethodExist(MethodElement method){
 		if(apiFlag==false){
 			setApiLevel(1);
 		}
@@ -455,7 +455,7 @@ public class RapidAndroidParser {
 	 * @param keyword The string wanted to be searched
 	 * @return True if it exists.
 	 * */
-	public boolean isStringExist(String keyword) {
+	public boolean doseStringExist(String keyword) {
 		//setApiLevel(0);
 		for(int i = 0;i<this.stringComponent.stringElementList.size();i++){
 			if(this.stringComponent.stringElementList.get(i).stringContent.equals(keyword)){
@@ -746,7 +746,7 @@ public class RapidAndroidParser {
 	 * @param api An MethodElement object
 	 * @return True if the API is exist
 	 **/
-	public boolean isApiExist(MethodElement api){
+	public boolean doseApiExist(MethodElement api){
 		
 		if(apiFlag==false){
 			setApiLevel(2);
