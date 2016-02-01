@@ -55,7 +55,7 @@ public class Sample {
 
 				 
 				//Determine if the Method exists in DEX file.
-				if (rapid.isMethodExist(targetMethod)){
+				if (rapid.doseMethodExist(targetMethod)){
 					
 					//Searching the invokes of the Method;
 					ArrayList<Instruction> insList=rapid.getInsInvokeMethod(targetMethod);
