@@ -28,7 +28,7 @@ public class XmlParser {
 	private String XMLPrinter2cmd;
 	private	String unzippedFileDir;
 	private String searchLableName=null;
-	private String searchAttr=null;
+	private String searchAttrName=null;
 	private ArrayList<String> contentList = new ArrayList<String> ();
 	
 	public XmlParser(String apkFileName, String unzippedFileDir, String XMLPrinter2Path) throws Exception {
@@ -48,7 +48,7 @@ public class XmlParser {
 	}
 	public void searchAttr(String lableName,String attributeName){
 		this.searchLableName=lableName;
-		this.searchAttr=this.searchLableName;
+		this.searchAttrName=attributeName;
 		
 	}
 	private static void printMessage(final InputStream input,final String unzippedFileDir) {
@@ -91,13 +91,19 @@ public class XmlParser {
 		
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(this.unzippedFileDir);   
-		Element root =doc.getDocumentElement();
+
+			
+			Document doc = db.parse(this.unzippedFileDir);  
+			Element root =doc.getDocumentElement();
+			NodeList nodeList = root.getChildNodes();
+			if(searchLableName!=null && searchAttrName!=null){
+				nodeTraverse(nodeList);
+			}
+
+		 
 		
-		NodeList nodeList = root.getChildNodes();
-		if(searchLableName!=null && searchAttr!=null){
-			nodeTraverse(nodeList);
-		}
+		
+		
 		return contentList;
 
 
@@ -109,15 +115,15 @@ public class XmlParser {
             	 if (child.getNodeType() == Node.ELEMENT_NODE){
             		 
             		 if(child.getNodeName().equals(searchLableName)){
-            			 
+            			  
             			 NamedNodeMap attributes= child.getAttributes();
             		
             			 for(int j=0; j< attributes.getLength(); j++ ){
             			
             				 Attr attr = (Attr) attributes.item(j);
-            				 
-            				 if(attr.getName().equals("android:authorities")){
             				
+            				 if(attr.getName().equals(this.searchAttrName)){
+            					
             					 this.contentList.add(attr.getValue());
             					 
             				 }

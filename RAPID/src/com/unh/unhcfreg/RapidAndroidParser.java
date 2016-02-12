@@ -50,7 +50,7 @@ public class RapidAndroidParser {
 	 * */
 	public void setApkDir(String apkDir){
 		this.apkDir=apkDir;
-		
+		setApkList();
 	}
 	/**
 	 * Indicate a SINGLE APK or DEX file expected as the target sample file.
@@ -124,7 +124,6 @@ public class RapidAndroidParser {
 	 * */	
 	public void setQuery(QueryBlock queryBlock) {
 		System.out.println("#	RAPID version 0.01: a forensic examnation tool for DEX file ");
-		setApkList();
 		String unzippedFile;
 		if(this.targetFile!=null){
 				if(this.targetFile.endsWith(".apk")){
