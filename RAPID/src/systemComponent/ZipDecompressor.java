@@ -13,7 +13,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 /**class for unzipping DEX file from APK file*/
 public class ZipDecompressor {
-	
 	private String apkDir;	
 	private String unzippedDir;
 	
@@ -28,9 +27,8 @@ public class ZipDecompressor {
 	public void setApkDir(String apkDir, String unzippedDir){
 		this.apkDir=apkDir;
 		this.unzippedDir=unzippedDir;
-	}
-	/**unzipping a file*/
-
+	}	
+	/**unzipping a file*/	
 	public String unzipFile(String unzippingFileName) throws Exception{
 
 		
