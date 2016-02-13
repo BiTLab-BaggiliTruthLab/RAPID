@@ -124,6 +124,9 @@ public class RapidAndroidParser {
 	 * */	
 	public void setQuery(QueryBlock queryBlock) {
 		System.out.println("#	RAPID version 0.01: a forensic examnation tool for DEX file ");
+		if(this.apkDir!=System.getProperty("user.dir")){
+			setApkList();
+		}	
 		String unzippedFile;
 		if(this.targetFile!=null){
 				if(this.targetFile.endsWith(".apk")){
