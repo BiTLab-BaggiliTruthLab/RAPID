@@ -2,11 +2,15 @@ package com.unh.unhcfreg;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+
+import java.io.FileInputStream;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,13 +47,13 @@ public class XmlParser {
 		    process.waitFor();
 			
 		
-		parserXml();
-		
 	}
-	public void searchAttr(String lableName,String attributeName){
+	
+	public ArrayList<String> searchAttr(String lableName,String attributeName) throws Exception{
 		this.searchLableName=lableName;
 		this.searchAttrName=attributeName;
-		
+		parserXml();
+		return contentList;
 	}
 	private static void printMessage(final InputStream input,final String unzippedFileDir) {
 	     new Thread(new Runnable() {
@@ -66,8 +70,10 @@ public class XmlParser {
 			        	FileWriter writer = new FileWriter(unzippedFileDir); 
 						BufferedWriter bw = new BufferedWriter(writer);
 						while((line=bf.readLine())!=null) {
-						   
-						     bw.write(line+"\r\n");
+							//line=URLEncoder.encode(line, "UTF-8");  
+							
+							line=line.replace("&", "&amp;")+"\r\n";
+						    bw.write(line);
 						 }
 						bf.close();
 			            
@@ -86,10 +92,22 @@ public class XmlParser {
 
          }).start();
 	}
-	public ArrayList<String> parserXml() throws Exception{ 
+	public void parserXml() throws Exception{ 
 
+		try{
+			domParser();
+		}catch(Exception e){
+			KeywordMatchParser(this.unzippedFileDir);
+			throw e;
+			
+		}
+	    
 		
-	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
+
+
+	} 
+	private void domParser() throws Exception{ 
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
 		DocumentBuilder db = dbf.newDocumentBuilder();
 
 			
@@ -100,14 +118,28 @@ public class XmlParser {
 				nodeTraverse(nodeList);
 			}
 
-		 
 		
-		
-		
-		return contentList;
-
-
-	} 
+	}
+	
+	private void KeywordMatchParser(String unzippedFileDir) throws IOException{
+		  Reader reader = new InputStreamReader(new FileInputStream(unzippedFileDir));
+	         BufferedReader bf = new BufferedReader(reader);
+	         String line;
+	         int magicNum=0;
+	         while((line=bf.readLine())!=null) {
+	        			if(line.contains("<"+this.searchLableName)){
+	        				magicNum=1;
+	        			}
+	        			if(magicNum==1 && line.contains(this.searchAttrName+"=")){
+	        					line = line.replace(this.searchAttrName+"=", "").replace("\"","");
+	        					contentList.add(line);
+	        			}
+	        			if(line.endsWith("</"+this.searchLableName+">")){
+	        				magicNum=0;System.out.println(line);
+	        			}
+	        						    				 
+	         }
+	}
 	private NodeList nodeTraverse(NodeList nodeList){
 		NodeList n2=null;
 		for (int i = 0; i < nodeList.getLength(); i++) {
