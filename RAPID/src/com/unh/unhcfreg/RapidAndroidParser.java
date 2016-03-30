@@ -37,6 +37,7 @@ public class RapidAndroidParser {
 	private  MethodComponent methodComponent;
 	private  CodeComponent codeBlockComponent;
 	private  String targetFile=null;
+	private  static String VERSION = "0.2";
 
 	private  int apiLevel=0;//0->string
 							//1->method definition
@@ -123,7 +124,7 @@ public class RapidAndroidParser {
 	 * @param queryBlock the implementation of interface 'QueryBlock',
 	 * */	
 	public void setQuery(QueryBlock queryBlock) {
-		System.out.println("#	RAPID version 0.01: a forensic examnation tool for DEX file ");
+		System.out.println("#	RAPID version "+VERSION+": a forensic examnation tool for DEX file ");
 		if(this.apkDir!=System.getProperty("user.dir")){
 			setApkList();
 		}	
