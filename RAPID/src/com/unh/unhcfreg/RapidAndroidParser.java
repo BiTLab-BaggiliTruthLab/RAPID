@@ -50,8 +50,11 @@ public class RapidAndroidParser {
 	 * @param apkDir the string of the full path. 
 	 * */
 	public void setApkDir(String apkDir){
-		this.apkDir=apkDir;
-		setApkList();
+		if(this.apkDir!=apkDir){
+			this.apkDir=apkDir;
+			setApkList();
+		}
+			
 	}
 	/**
 	 * Indicate a SINGLE APK or DEX file expected as the target sample file.
@@ -125,7 +128,7 @@ public class RapidAndroidParser {
 	 * */	
 	public void setQuery(QueryBlock queryBlock) {
 		System.out.println("#	RAPID version "+VERSION+": a forensic examnation tool for DEX file ");
-		if(this.apkDir!=System.getProperty("user.dir")){
+		if(this.apkDir==System.getProperty("user.dir")){
 			setApkList();
 		}	
 		String unzippedFile;
